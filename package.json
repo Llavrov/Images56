@@ -2,9 +2,12 @@
   "name": "untitled",
   "version": "1.0.0",
   "description": "",
+  "homepage": "https://llavrov.github.io/Images56/",
   "main": "index.js",
   "scripts": {
-    "serve": "parcel index.html"
+    "serve": "parcel index.html",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -13,6 +16,7 @@
     "parcel-bundler": "^1.12.5"
   },
   "dependencies": {
-    "firebase": "^9.1.3"
+    "firebase": "^9.1.3",
+    "gh-pages": "^3.2.3"
   }
 }
