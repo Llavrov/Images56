@@ -8633,10 +8633,6 @@ var _app = require("firebase/app");
 
 var _storage = require("firebase/storage");
 
-// Import the functions you need from the SDKs you need
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// Your web app's Firebase configuration
 var firebaseConfig = {
   apiKey: "AIzaSyBxtVrgTuB2tkFfTBRY06IHkUJmIdDeAqM",
   authDomain: "image-uploader-fe3b2.firebaseapp.com",
@@ -8735,7 +8731,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50921" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55571" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

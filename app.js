@@ -2,11 +2,6 @@ import {upload} from "./upload";
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll } from "firebase/storage";
 
-// Import the functions you need from the SDKs you need
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyBxtVrgTuB2tkFfTBRY06IHkUJmIdDeAqM",
     authDomain: "image-uploader-fe3b2.firebaseapp.com",

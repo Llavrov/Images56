@@ -117,79 +117,150 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"upload.js":[function(require,module,exports) {
+"use strict";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.upload = upload;
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function bytesToSize(bytes) {
+  var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+
+  if (!bytes) {
+    return '0 Byte';
   }
 
-  return bundleURL;
+  var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+  return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
 }
 
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
+var element = function element(tag) {
+  var classes = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+  var content = arguments.length > 2 ? arguments[2] : undefined;
+  var node = document.createElement(tag);
 
-    if (matches) {
-      return getBaseURL(matches[0]);
-    }
+  if (classes.length) {
+    var _node$classList;
+
+    (_node$classList = node.classList).add.apply(_node$classList, _toConsumableArray(classes));
   }
 
-  return '/';
-}
+  if (content) {
+    node.textContent = content;
+  }
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)?\/[^/]+(?:\?.*)?$/, '$1') + '/';
-}
+  return node;
+};
 
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
+function noop() {}
 
-function updateLink(link) {
-  var newLink = link.cloneNode();
+function upload(selector) {
+  var _options$onUpload;
 
-  newLink.onload = function () {
-    link.remove();
+  var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var files = [];
+  var onUpload = (_options$onUpload = options.onUpload) !== null && _options$onUpload !== void 0 ? _options$onUpload : noop;
+  var input = document.querySelector(selector);
+  var preview = element('div', ['preview']);
+  var open = element('button', ['btn'], 'Открыть');
+  var upload = element('button', ['btn', 'primary'], 'Загрузить');
+  upload.style.display = 'none';
+
+  if (options.multi) {
+    input.setAttribute('multiple', true);
+  }
+
+  if (options.accept && Array.isArray(options.accept)) {
+    input.setAttribute('accept', options.accept.join(','));
+  }
+
+  input.insertAdjacentElement('afterend', preview);
+  input.insertAdjacentElement('afterend', upload);
+  input.insertAdjacentElement('afterend', open);
+
+  var triggeeInput = function triggeeInput() {
+    return input.click();
   };
 
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
-
-var cssTimeout = null;
-
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
-
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
+  var changeHandler = function changeHandler(event) {
+    if (!event.target.files.length) {
+      return;
     }
 
-    cssTimeout = null;
-  }, 50);
+    files = Array.from(event.target.files);
+    preview.innerHTML = "";
+    upload.style.display = 'inline';
+    files.forEach(function (file) {
+      if (!file.type.match('image')) {
+        return;
+      }
+
+      var reader = new FileReader();
+
+      reader.onload = function (ev) {
+        var src = ev.target.result;
+        preview.insertAdjacentHTML('afterbegin', "\n                    <div class=\"preview-image\">\n                    <div class=\"preview-remove\" data-name=\"".concat(file.name, "\">&times;</div>\n                        <img src=\"").concat(src, "\" alt=\"").concat(file.name, "\"/>\n                        <div class=\"preview-info\">\n                            <span>").concat(file.name, "</span>\n                            ").concat(bytesToSize(file.size), "\n                        </div>\n                    </div>\n                "));
+      };
+
+      reader.readAsDataURL(file); // ассинхронная операция
+    });
+  };
+
+  var removeHandler = function removeHandler(event) {
+    if (!event.target.dataset.name) {
+      return;
+    }
+
+    var name = event.target.dataset.name;
+    files = files.filter(function (file) {
+      return file.name !== name;
+    });
+
+    if (!files.length) {
+      upload.style.display = 'none';
+    }
+
+    var block = preview.querySelector("[data-name=\"".concat(name, "\"]")).closest('.preview-image');
+    block.classList.add('removing');
+    setTimeout(function () {
+      return block.remove();
+    }, 300);
+  };
+
+  var clearPreview = function clearPreview(el) {
+    el.style.bottom = '4px';
+    el.innerHTML = '<div class="preview-info-progress"></div>';
+  };
+
+  var uploadHandler = function uploadHandler() {
+    preview.querySelectorAll('.preview-remove').forEach(function (e) {
+      return e.remove();
+    });
+    var previewInfo = preview.querySelectorAll('.preview-info');
+    previewInfo.forEach(clearPreview);
+    onUpload(files, previewInfo);
+  };
+
+  open.addEventListener('click', triggeeInput);
+  input.addEventListener('change', changeHandler);
+  preview.addEventListener('click', removeHandler);
+  upload.addEventListener('click', uploadHandler);
 }
-
-module.exports = reloadCSS;
-},{"./bundle-url":"node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"css/theme.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -393,5 +464,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/theme.a0cc3e13.js.map
+},{}]},{},["node_modules/parcel-bundler/src/builtins/hmr-runtime.js","upload.js"], null)
+//# sourceMappingURL=/upload.e830027a.js.map
